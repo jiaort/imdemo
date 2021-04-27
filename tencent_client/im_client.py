@@ -15,20 +15,22 @@ class IMClient(object):
         self.identifier = "administrator"
         self.app_id = 1400512134
         self.secret = "150427f3d9e7f25c69d24f79538432aa51eb4ed2b8cc990dee23340b4a2d64a2"
-        self.user_sig = self._get_user_sign()
 
     def _get_user_sign(self):
+        # TODO 存入redis
         api = TLSSigAPIv2.TLSSigAPIv2(self.app_id, self.secret)
-        return api.gen_sig(self.identifier)
+        user_sig = api.gen_sig(self.identifier, expire=180*86400)
+        return user_sig
 
     def _format_url(self, path):
+        user_sig = self._get_user_sign()
         return "{base_url}/{version}/{path}?sdkappid={app_id}&identifier={identifier}&usersig={user_sig}&random={random}&contenttype=json".format(
             base_url=self.base_url,
             version=self.version,
             path=path,
             app_id=self.app_id,
             identifier=self.identifier,
-            user_sig=self.user_sig,
+            user_sig=user_sig,
             random=random.randint(1, 4294967294)
         )
 
