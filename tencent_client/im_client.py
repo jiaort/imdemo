@@ -1,5 +1,6 @@
 import json
 import random
+import time
 
 import TLSSigAPIv2
 import requests
@@ -124,27 +125,84 @@ class IMClient(object):
 
     # ------------------------------- 单聊消息 -------------------------------
 
-    def send_msg(self):
+    def send_msg(self, to_account, msg_body, sync_other_machine=1, from_account=None):
+        """
+        单发单聊消息
+        :param to_account:消息接收方 UserID
+        :param msg_body:消息内容
+        :param sync_other_machine:1：把消息同步到 From_Account 在线终端和漫游上；2：消息不同步至 From_Account；若不填写默认情况下会将消息存 From_Account 漫游
+        :param from_account:消息发送方 UserID
+        :return:
+        """
         params = {
-          "SyncOtherMachine": 2,
-          "To_Account": "test",
-          "MsgLifeTime": 60,
-          "MsgRandom": 1287657,
-          "MsgTimeStamp": 1557387418,
-          "ForbidCallbackControl": [
-              "ForbidBeforeSendMsgCallback",
-              "ForbidAfterSendMsgCallback"],
-          "MsgBody": [
-              {
-                  "MsgType": "TIMTextElem",
-                  "MsgContent": {
-                      "Text": "hi, beauty"
-                  }
-              }
-          ]
+          "SyncOtherMachine": sync_other_machine,
+          "From_Account": from_account,
+          "To_Account": to_account,
+          "MsgRandom": random.randint(1, 4294967294),
+          "MsgTimeStamp": int(time.time()),
+          "MsgBody": msg_body
         }
+        if from_account:
+            params["From_Account"] = from_account
         return self._request(path=ApiList.SEND_MSG, params=params)
 
+    def batch_send_msg(self, to_account, msg_body, sync_other_machine=1, from_account=None):
+        """
+        批量发单聊消息
+        :param to_account:必填 消息接收方用户 UserID ["id1", "id2", "id3"]
+        :param msg_body:必填	 TIM 消息
+        :param sync_other_machine:选填 把消息同步到 From_Account 在线终端和漫游上；2：消息不同步至 From_Account；若不填写默认情况下会将消息存 From_Account 漫游
+        :param from_account:管理员指定消息发送方帐号
+        :return:
+        """
+        params = {
+          "SyncOtherMachine": sync_other_machine,
+          "To_Account": to_account,
+          "MsgRandom": random.randint(1, 4294967294),
+          "MsgBody": msg_body
+        }
+        if from_account:
+            params["From_Account"] = from_account
+        return self._request(path=ApiList.BATCH_SEND_MSG, params=params)
+
+    def import_msg(self, to_account, msg_body, sync_from_old_system=1, from_account=None):
+        """
+        导入单聊信息
+        :param to_account:必填	消息接收方 UserID
+        :param msg_body:必填	消息内容
+        :param sync_from_old_system:必填 该字段只能填1或2，其他值是非法值 1表示实时消息导入，消息加入未读计数 2表示历史消息导入，消息不计入未读
+        :param from_account:必填	消息发送方 UserID，用于指定发送消息方
+        :return:
+        """
+        params = {
+          "SyncFromOldSystem": sync_from_old_system,
+          "From_Account": from_account,
+          "To_Account": to_account,
+          "MsgRandom": random.randint(1, 4294967294),
+          "MsgTimeStamp": int(time.time()),
+          "MsgBody": msg_body
+        }
+        return self._request(path=ApiList.IMPORT_MSG, params=params)
+
+    def admin_get_roam_msg(self, from_account, to_account, max_cnt, min_time, max_time, last_msg_key=None):
+        """
+        查询单聊消息
+        :param from_account:必填	会话其中一方的 UserID，若已指定发送消息方帐号，则为消息发送方
+        :param to_account:必填	会话其中一方的 UserID
+        :param max_cnt:必填	请求的消息条数
+        :param min_time:必填	请求的消息时间范围的最小值
+        :param max_time:必填	请求的消息时间范围的最大值
+        :param last_msg_key:选填	上一次拉取到的最后一条消息的 MsgKey，续拉时需要填该字段
+        :return:
+        """
+        params = {
+           "From_Account": "user2",
+           "To_Account": "user1",
+           "MaxCnt": 100,
+           "MinTime": 1584669600,
+           "MaxTime": 1584673200
+        }
+        return self._request(path=ApiList.ADMIN_GET_ROAM_MSG, params=params)
     # ------------------------------- 全员推送 -------------------------------
 
     # ------------------------------- 资料管理 -------------------------------
