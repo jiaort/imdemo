@@ -1,0 +1,8 @@
+*.pyc
+*.log
+local_settings.py
+logs/*
+!logs/empty
+.coverage
+.*.swp
+.idea/*
