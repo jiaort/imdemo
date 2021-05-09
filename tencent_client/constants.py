@@ -51,6 +51,7 @@ class ApiList(object):
     GROUP_GET = "sns/group_get"  # 拉取分组
 
     # 群组管理
+    GET_APP_ID_GROUP_LIST = "group_open_http_svc/get_appid_group_list"  # 获取 App 中的所有群组
     CREATE_GROUP = "group_open_http_svc/create_group"  # 创建群组
     GET_GROUP_INFO = "group_open_http_svc/get_group_info"  # 获取群组详细资料
     GET_GROUP_MEMBER_INFO = "group_open_http_svc/get_group_member_info"  # 获取群成员详细资料
